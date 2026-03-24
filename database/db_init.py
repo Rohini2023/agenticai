@@ -5,24 +5,30 @@ def init_db():
     conn = sqlite3.connect("database/elderly_chatbot.db")
     cursor = conn.cursor()
 
-    # Caregiver table
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS caregivers(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        phone TEXT UNIQUE NOT NULL,
-        relation TEXT
-    )
-    """)
-
-    # Reminder table
+CREATE TABLE IF NOT EXISTS caregivers(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    phone TEXT UNIQUE NOT NULL,
+    email TEXT,                       -- 🔥 for email alerts
+    relation TEXT,
+    priority INTEGER DEFAULT 1,       -- 🔥 primary / secondary caregiver
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+""")
+    
+    # 🔥 UPDATED REMINDER TABLE
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS reminders(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        reminder_text TEXT,
-        reminder_time TEXT
+        task TEXT NOT NULL,
+        reminder_time DATETIME NOT NULL,
+        status TEXT DEFAULT 'pending',
+        miss_count INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
     """)
+
 
     # Chat history table
     cursor.execute("""
