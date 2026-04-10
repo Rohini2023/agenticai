@@ -52,7 +52,7 @@ from services.reminder_scheduler import schedule_reminder
 from services.email_service import send_email
 from audio.text_speech import speak
 from newsapi import NewsApiClient
-llm = OllamaLLM(model="llama3")
+llm = OllamaLLM(model="llama3:latest")
 
 
 # ✅ REMINDER TOOL
@@ -62,30 +62,44 @@ def reminder_tool(text):
 
     task, time = extract_reminder(text)
 
-    if not task:
+    if not task or task == "none":
         return "What should I remind you about?"
 
     if not time:
-        return f"What time should I remind you to {task}?"
+        return f"When should I remind you to {task}?"
 
     reminder_id = save_reminder(task, time)
+
+    from services.reminder_scheduler import schedule_reminder
     schedule_reminder(task, time, reminder_id)
 
-    # 🔥 Clean output
-    now = datetime.now()
-    tomorrow = now.date() + timedelta(days=1)
+    return f"Reminder set for {task} at {time.strftime('%I:%M %p')}"
+# def reminder_tool(text):
 
-    if time.date() == now.date():
-        formatted = time.strftime("%I:%M %p")
-        return f"Reminder set for {task} at {formatted}"
+#     task, time = extract_reminder(text)
 
-    elif time.date() == tomorrow:
-        formatted = time.strftime("%I:%M %p")
-        return f"Reminder set for {task} tomorrow at {formatted}"
+#     # ❌ FIX: invalid task
+#     if not task or task.lower() in ["none", ""]:
+#         return "I could not understand the reminder"
 
-    else:
-        formatted = time.strftime("%d %b at %I:%M %p")
-        return f"Reminder set for {task} on {formatted}"
+#     # ❌ FIX: invalid time
+#     if not time:
+#         return f"What time should I remind you to {task}?"
+
+#     # 🔥 FIX: if time is string → convert
+#     if isinstance(time, str):
+#         time = datetime.fromisoformat(time)
+
+#     # 🔥 FIX: ensure future time
+#     if time < datetime.now():
+#         time = datetime.now() + timedelta(minutes=1)
+
+#     reminder_id = save_reminder(task, time)
+#     schedule_reminder(task, time, reminder_id)
+
+#     formatted = time.strftime("%I:%M %p")
+
+#     return f"Reminder set for {task} at {formatted}"
 
 # 🚨 EMERGENCY TOOL
 # def emergency_tool(text):

@@ -103,76 +103,65 @@
 from langchain_ollama import OllamaLLM
 import dateparser
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 
-llm = OllamaLLM(model="llama3")
-
-
-# 🔥 CLEAN TIME TEXT (VERY IMPORTANT)
-def clean_time_text(text):
-    text = text.lower()
-
-    # 10-20 → 10:20
-    text = re.sub(r'(\d{1,2})-(\d{1,2})', r'\1:\2', text)
-
-    # 10.20 → 10:20
-    text = re.sub(r'(\d{1,2})[.](\d{1,2})', r'\1:\2', text)
-
-    return text.strip()
+llm = OllamaLLM(model="llama3:latest")
 
 
 def extract_reminder(text):
 
-    prompt = f"""
-Extract the reminder task and time.
+    text_lower = text.lower()
 
-Message:
-{text}
-
-Rules:
-- If time missing → return "none"
-- Include words like today, tomorrow, morning, evening
-
-Return ONLY:
-
-task: <task>
-time: <time or none>
-"""
-
-    try:
-        result = llm.invoke(prompt)
-    except Exception as e:
-        print("LLM error:", e)
-        result = ""
-
+    # ✅ STEP 1: RULE-BASED TASK EXTRACTION
     task = ""
-    time_text = ""
 
-    for line in result.split("\n"):
+    if "take" in text_lower:
+        task = text_lower.split("take")[-1].strip()
 
-        if "task" in line.lower():
-            task = line.split(":", 1)[-1].strip()
+    elif "remind me to" in text_lower:
+        task = text_lower.split("remind me to")[-1].strip()
 
-        if "time" in line.lower():
-            time_text = line.split(":", 1)[-1].strip()
+    else:
+        task = text_lower
 
-    # 🔥 CLEAN TIME FORMAT
-    time_text = clean_time_text(time_text)
+    # Clean task
+    task = re.sub(r"(after.*|at.*|tomorrow.*|today.*)", "", task).strip()
 
-    # 🔥 PARSE DATE SAFELY
-    parsed_time = dateparser.parse(
-        time_text,
-        settings={
-            "PREFER_DATES_FROM": "future",
-            "DATE_ORDER": "DMY"
-        }
-    )
+    # ❌ If still empty → fallback
+    if not task or len(task) < 2:
+        task = "medicine"
 
-    # 🔥 DEFAULT TIME (if missing)
-    if not parsed_time:
-        parsed_time = dateparser.parse(
-            "today 9:00 AM",
+    # ✅ STEP 2: TIME EXTRACTION (SMART)
+
+    time = None
+
+    # 🔥 AFTER X MINUTES
+    match = re.search(r'after (\d+) (minute|minutes)', text_lower)
+    if match:
+        mins = int(match.group(1))
+        time = datetime.now() + timedelta(minutes=mins)
+
+    # 🔥 AFTER X HOURS
+    match = re.search(r'after (\d+) (hour|hours)', text_lower)
+    if match:
+        hrs = int(match.group(1))
+        time = datetime.now() + timedelta(hours=hrs)
+
+    # 🔥 TOMORROW
+    if "tomorrow" in text_lower:
+        time = dateparser.parse("tomorrow 9:00 AM")
+
+    # 🔥 SPECIFIC TIME
+    if not time:
+        parsed = dateparser.parse(
+            text,
             settings={"PREFER_DATES_FROM": "future"}
         )
+        if parsed:
+            time = parsed
 
-    return task, parsed_time
+    # ❌ FINAL FALLBACK
+    if not time:
+        time = datetime.now() + timedelta(minutes=1)
+
+    return task, time
