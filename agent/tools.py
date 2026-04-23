@@ -55,25 +55,73 @@ from newsapi import NewsApiClient
 llm = OllamaLLM(model="llama3:latest")
 
 
-# ✅ REMINDER TOOL
-from datetime import datetime, timedelta
+# # ✅ REMINDER TOOL
+# from datetime import datetime, timedelta
+
+# def reminder_tool(text):
+
+#     task, time = extract_reminder(text)
+
+#     if not task or task == "none":
+#         return "What should I remind you about?"
+
+#     if not time:
+#         return f"When should I remind you to {task}?"
+
+#     reminder_id = save_reminder(task, time)
+
+#     from reminder_scheduler import schedule_reminder
+#     schedule_reminder(task, time, reminder_id)
+
+#     return f"Reminder set for {task} at {time.strftime('%I:%M %p')}"
+
+from datetime import datetime
+
+from agent.reminder_extractor import extract_reminder
+from database.reminder import save_reminder
+from services.reminder_scheduler import schedule_reminder
+
 
 def reminder_tool(text):
 
-    task, time = extract_reminder(text)
+    # STEP 1 → Extract task + time
+    task, reminder_time = extract_reminder(text)
 
     if not task or task == "none":
         return "What should I remind you about?"
 
-    if not time:
+    if not reminder_time:
         return f"When should I remind you to {task}?"
 
-    reminder_id = save_reminder(task, time)
+    try:
+        # STEP 2 → Save reminder in DB (STRING)
+        reminder_id = save_reminder(
+            task,
+            reminder_time
+        )
 
-    from services.reminder_scheduler import schedule_reminder
-    schedule_reminder(task, time, reminder_id)
+        # STEP 3 → Convert STRING → DATETIME
+        run_time = datetime.fromisoformat(
+            reminder_time
+        )
 
-    return f"Reminder set for {task} at {time.strftime('%I:%M %p')}"
+        # STEP 4 → Schedule reminder
+        schedule_reminder(
+            task,
+            run_time,
+            reminder_id
+        )
+
+        # STEP 5 → User response
+        formatted_time = run_time.strftime(
+            "%I:%M %p"
+        )
+
+        return f"Reminder set for {task} at {formatted_time}"
+
+    except Exception as e:
+        print("Reminder Tool Error:", e)
+        return "Sorry, I could not set the reminder"
 # def reminder_tool(text):
 
 #     task, time = extract_reminder(text)
@@ -151,107 +199,265 @@ def chat_tool(text):
 
 
 # 📰 NEWS TOOL
-import requests
-# from langchain_ollama import OllamaLLM
+# import requests
+# # from langchain_ollama import OllamaLLM
 
-llm = OllamaLLM(model="llama3")
+# llm = OllamaLLM(model="llama3")
 
-API_KEY = "33d3a5b333ec42d383b2bb66394d423e"
+# API_KEY = "33d3a5b333ec42d383b2bb66394d423e"
 
 
+# def detect_language(text):
+#     text = text.lower()
+
+#     if any(word in text for word in ["malayalam", "മലയാളം"]):
+#         return "Malayalam"
+#     elif any(word in text for word in ["tamil", "தமிழ்"]):
+#         return "Tamil"
+#     elif any(word in text for word in ["hindi", "हिंदी"]):
+#         return "Hindi"
+#     else:
+#         return "English"
+
+
+# newsapi = NewsApiClient(api_key="your_api_key_here")
+
+# llm = OllamaLLM(model="llama3")
+
+
+# def detect_language(text):
+#     text = text.lower()
+
+#     if any(word in text for word in ["malayalam", "മലയാളം"]):
+#         return "Malayalam"
+#     elif any(word in text for word in ["tamil", "தமிழ்"]):
+#         return "Tamil"
+#     elif any(word in text for word in ["hindi", "हिंदी"]):
+#         return "Hindi"
+#     else:
+#         return "English"
+
+
+# def detect_category(text):
+#     text = text.lower()
+
+#     if "sports" in text:
+#         return "sports"
+#     elif "technology" in text or "tech" in text:
+#         return "technology"
+#     elif "health" in text:
+#         return "health"
+#     elif "business" in text:
+#         return "business"
+#     else:
+#         return "general"
+
+
+# def news_tool(text):
+
+#     lang = detect_language(text)
+#     category = detect_category(text)
+
+#     try:
+#         # 🔥 Fetch real news
+#         data = newsapi.get_top_headlines(
+#             country="in",
+#             category=category,
+#             page_size=5
+#         )
+
+#         articles = data.get("articles", [])
+
+#         if not articles:
+#             return "No news available right now."
+
+#         # 🔹 Extract headlines
+#         raw_news = ""
+#         for i, article in enumerate(articles, 1):
+#             title = article.get("title") or ""
+#             desc = article.get("description") or ""
+
+#             if not title:
+#                 continue
+
+#             raw_news += f"{i}. {title}. {desc}\n"
+
+#         # 🤖 LLM summarization
+#         prompt = f"""
+# Summarize the following news into 3 short, simple, voice-friendly points.
+
+# Rules:
+# - Very simple words (for elderly users)
+# - Each point = one short sentence
+# - No complex terms
+# - Language: {lang}
+
+# News:
+# {raw_news}
+# """
+
+#         summary = llm.invoke(prompt)
+
+#         return summary.strip()
+
+#     except Exception as e:
+#         print("News error:", e)
+#         return "Unable to fetch news right now."
+
+
+import feedparser
+from langchain_ollama import OllamaLLM
+from audio.text_speech import speak
+
+# 🔥 LLaMA Model
+llm = OllamaLLM(model="llama3:latest")
+
+
+# 🌐 Detect Language
 def detect_language(text):
     text = text.lower()
 
     if any(word in text for word in ["malayalam", "മലയാളം"]):
         return "Malayalam"
+
     elif any(word in text for word in ["tamil", "தமிழ்"]):
         return "Tamil"
+
     elif any(word in text for word in ["hindi", "हिंदी"]):
         return "Hindi"
+
     else:
         return "English"
 
 
-newsapi = NewsApiClient(api_key="your_api_key_here")
-
-llm = OllamaLLM(model="llama3")
-
-
-def detect_language(text):
-    text = text.lower()
-
-    if any(word in text for word in ["malayalam", "മലയാളം"]):
-        return "Malayalam"
-    elif any(word in text for word in ["tamil", "தமிழ்"]):
-        return "Tamil"
-    elif any(word in text for word in ["hindi", "हिंदी"]):
-        return "Hindi"
-    else:
-        return "English"
-
-
+# 📰 Detect News Category
 def detect_category(text):
     text = text.lower()
 
     if "sports" in text:
         return "sports"
+
     elif "technology" in text or "tech" in text:
         return "technology"
+
     elif "health" in text:
         return "health"
+
     elif "business" in text:
         return "business"
+
     else:
         return "general"
 
 
+# 🔗 Select RSS Feed URL
+def get_news_url(language, category):
+
+    # ✅ Malayalam Kerala News
+    if language == "Malayalam":
+        return "https://news.google.com/rss?hl=ml&gl=IN&ceid=IN:ml"
+
+    # ✅ Tamil News
+    elif language == "Tamil":
+        return "https://news.google.com/rss?hl=ta&gl=IN&ceid=IN:ta"
+
+    # ✅ Hindi News
+    elif language == "Hindi":
+        return "https://news.google.com/rss?hl=hi&gl=IN&ceid=IN:hi"
+
+    # ✅ English Category-Based News
+    else:
+        if category == "sports":
+            return "https://news.google.com/rss/headlines/section/topic/SPORTS?hl=en-IN&gl=IN&ceid=IN:en"
+
+        elif category == "technology":
+            return "https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=en-IN&gl=IN&ceid=IN:en"
+
+        elif category == "health":
+            return "https://news.google.com/rss/headlines/section/topic/HEALTH?hl=en-IN&gl=IN&ceid=IN:en"
+
+        elif category == "business":
+            return "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-IN&gl=IN&ceid=IN:en"
+
+        else:
+            return "https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en"
+
+
+# 📰 MAIN NEWS TOOL WITH AUDIO OUTPUT
 def news_tool(text):
 
-    lang = detect_language(text)
-    category = detect_category(text)
-
     try:
-        # 🔥 Fetch real news
-        data = newsapi.get_top_headlines(
-            country="in",
-            category=category,
-            page_size=5
-        )
+        # 🔥 Detect language + category
+        language = detect_language(text)
+        category = detect_category(text)
 
-        articles = data.get("articles", [])
+        # 🔥 Get RSS URL
+        url = get_news_url(language, category)
 
-        if not articles:
-            return "No news available right now."
+        print("📰 Fetching News From:", url)
 
-        # 🔹 Extract headlines
+        # 🔥 Parse RSS Feed
+        feed = feedparser.parse(url)
+
+        if not feed.entries:
+            response = "No news available right now."
+            speak(response)
+            return response
+
+        # 🔹 Extract Top 5 News
         raw_news = ""
-        for i, article in enumerate(articles, 1):
-            title = article.get("title") or ""
-            desc = article.get("description") or ""
+
+        for i, entry in enumerate(feed.entries[:5], 1):
+            title = entry.title if hasattr(entry, "title") else ""
 
             if not title:
                 continue
 
-            raw_news += f"{i}. {title}. {desc}\n"
+            raw_news += f"{i}. {title}\n"
 
-        # 🤖 LLM summarization
+        print("📰 Raw News:\n", raw_news)
+
+        # 🤖 LLaMA Prompt
         prompt = f"""
 Summarize the following news into 3 short, simple, voice-friendly points.
 
 Rules:
-- Very simple words (for elderly users)
-- Each point = one short sentence
-- No complex terms
-- Language: {lang}
+- Use very simple words for elderly users
+- Keep each point short
+- Easy to speak aloud
+- No difficult words
+- Language: {language}
 
 News:
 {raw_news}
 """
 
-        summary = llm.invoke(prompt)
+        summary = llm.invoke(prompt).strip()
 
-        return summary.strip()
+        # 🔥 Final Voice-Friendly Response
+        if language == "Malayalam":
+            final_response = f"ഇന്നത്തെ പ്രധാന വാർത്തകൾ. {summary}"
+
+        elif language == "Tamil":
+            final_response = f"இன்றைய முக்கிய செய்திகள். {summary}"
+
+        elif language == "Hindi":
+            final_response = f"आज की मुख्य खबरें। {summary}"
+
+        else:
+            final_response = f"Today's important news. {summary}"
+
+        print("🔊 Speaking News:", final_response)
+
+        # 🔥 Audio Output
+        speak(final_response)
+
+        return final_response
 
     except Exception as e:
-        print("News error:", e)
-        return "Unable to fetch news right now."
+        print("News Error:", e)
+
+        error_response = "Unable to fetch news right now."
+        speak(error_response)
+
+        return error_response

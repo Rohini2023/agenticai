@@ -152,42 +152,122 @@
 
 
 
+# from apscheduler.schedulers.background import BackgroundScheduler
+# from datetime import datetime
+# from audio.text_speech import speak
+# from database.reminder import mark_done, increment_miss, get_pending_reminders
+# from database.caregiver import get_all_caregivers
+# from services.email_service import send_email
+
+# scheduler = BackgroundScheduler()
+
+
+# # 🔔 MAIN TRIGGER
+# def reminder_action(reminder_id, task):
+
+#     print(f"🔔 Reminder Triggered: {task}")
+
+#     # 🔥 SPEAK MULTIPLE TIMES (IMPORTANT)
+#     for _ in range(2):
+#         speak(f"Reminder: {task}")
+
+#     # ✅ Immediately mark DONE (IMPORTANT FIX)
+#     mark_done(reminder_id)
+
+#     print("✅ Reminder marked done")
+
+
+# # 📅 SCHEDULE
+# def schedule_reminder(task, reminder_time, reminder_id):
+
+#     if reminder_time < datetime.now():
+#         print("⚠️ Skipping past reminder:", task)
+#         mark_done(reminder_id)
+#         return
+
+#     scheduler.add_job(
+#         reminder_action,
+#         'date',
+#         run_date=reminder_time,
+#         args=[reminder_id, task],
+#         id=str(reminder_id),
+#         replace_existing=True
+#     )
+
+#     print(f"⏰ Scheduled: {task} at {reminder_time}")
+
+
+# # 🔄 LOAD FROM DB
+# def load_existing_reminders():
+
+#     reminders = get_pending_reminders()
+
+#     print(f"📂 Loading {len(reminders)} reminders...")
+
+#     for rid, task, time_str in reminders:
+
+#         try:
+#             run_time = datetime.fromisoformat(str(time_str))
+#             schedule_reminder(task, run_time, rid)
+
+#         except Exception as e:
+#             print("Time error:", e)
+
+
+# # ▶️ START
+# def start_scheduler():
+
+#     scheduler.start()
+#     print("✅ Scheduler started")
+
+#     load_existing_reminders()
+
+
+
+
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 from audio.text_speech import speak
-from database.reminder import mark_done, increment_miss, get_pending_reminders
-from database.caregiver import get_all_caregivers
-from services.email_service import send_email
+from database.reminder import mark_done, get_pending_reminders
+import time
 
 scheduler = BackgroundScheduler()
 
 
-# 🔔 MAIN TRIGGER
+# 🔔 Reminder Trigger
 def reminder_action(reminder_id, task):
 
     print(f"🔔 Reminder Triggered: {task}")
 
-    # 🔥 SPEAK MULTIPLE TIMES (IMPORTANT)
-    for _ in range(2):
+    try:
+        # 🔥 only ONE speak call
         speak(f"Reminder: {task}")
 
-    # ✅ Immediately mark DONE (IMPORTANT FIX)
-    mark_done(reminder_id)
+        # wait for speech
+        time.sleep(3)
 
-    print("✅ Reminder marked done")
+        # mark done after alert
+        mark_done(reminder_id)
+
+        print("✅ Reminder marked done")
+
+    except Exception as e:
+        print("Reminder Error:", e)
 
 
-# 📅 SCHEDULE
+# 📅 Schedule Reminder
 def schedule_reminder(task, reminder_time, reminder_id):
 
     if reminder_time < datetime.now():
-        print("⚠️ Skipping past reminder:", task)
+        print(f"⚠️ Skipping past reminder: {task}")
+
         mark_done(reminder_id)
         return
 
     scheduler.add_job(
         reminder_action,
-        'date',
+        trigger="date",
         run_date=reminder_time,
         args=[reminder_id, task],
         id=str(reminder_id),
@@ -197,27 +277,35 @@ def schedule_reminder(task, reminder_time, reminder_id):
     print(f"⏰ Scheduled: {task} at {reminder_time}")
 
 
-# 🔄 LOAD FROM DB
+# 🔄 Load Existing Reminders
 def load_existing_reminders():
 
     reminders = get_pending_reminders()
 
     print(f"📂 Loading {len(reminders)} reminders...")
 
-    for rid, task, time_str in reminders:
+    for reminder_id, task, time_str in reminders:
 
         try:
             run_time = datetime.fromisoformat(str(time_str))
-            schedule_reminder(task, run_time, rid)
+
+            schedule_reminder(
+                task,
+                run_time,
+                reminder_id
+            )
 
         except Exception as e:
-            print("Time error:", e)
+            print("Time Parse Error:", e)
 
 
-# ▶️ START
+# ▶️ Start Scheduler
 def start_scheduler():
 
+    print("🚀 Starting Scheduler...")
+
     scheduler.start()
+
     print("✅ Scheduler started")
 
     load_existing_reminders()

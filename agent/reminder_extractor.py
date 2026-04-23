@@ -100,6 +100,75 @@
 #     return task, parsed_time
 
 
+# from langchain_ollama import OllamaLLM
+# import dateparser
+# import re
+# from datetime import datetime, timedelta
+
+# llm = OllamaLLM(model="llama3:latest")
+
+
+# def extract_reminder(text):
+
+#     text_lower = text.lower()
+
+#     # ✅ STEP 1: RULE-BASED TASK EXTRACTION
+#     task = ""
+
+#     if "take" in text_lower:
+#         task = text_lower.split("take")[-1].strip()
+
+#     elif "remind me to" in text_lower:
+#         task = text_lower.split("remind me to")[-1].strip()
+
+#     else:
+#         task = text_lower
+
+#     # Clean task
+#     task = re.sub(r"(after.*|at.*|tomorrow.*|today.*)", "", task).strip()
+
+#     # ❌ If still empty → fallback
+#     if not task or len(task) < 2:
+#         task = "medicine"
+
+#     # ✅ STEP 2: TIME EXTRACTION (SMART)
+
+#     time = None
+
+#     # 🔥 AFTER X MINUTES
+#     match = re.search(r'after (\d+) (minute|minutes)', text_lower)
+#     if match:
+#         mins = int(match.group(1))
+#         time = datetime.now() + timedelta(minutes=mins)
+
+#     # 🔥 AFTER X HOURS
+#     match = re.search(r'after (\d+) (hour|hours)', text_lower)
+#     if match:
+#         hrs = int(match.group(1))
+#         time = datetime.now() + timedelta(hours=hrs)
+
+#     # 🔥 TOMORROW
+#     if "tomorrow" in text_lower:
+#         time = dateparser.parse("tomorrow 9:00 AM")
+
+#     # 🔥 SPECIFIC TIME
+#     if not time:
+#         parsed = dateparser.parse(
+#             text,
+#             settings={"PREFER_DATES_FROM": "future"}
+#         )
+#         if parsed:
+#             time = parsed
+
+#     # ❌ FINAL FALLBACK
+#     if not time:
+#         time = datetime.now() + timedelta(minutes=1)
+
+#     return task, time
+
+
+
+
 from langchain_ollama import OllamaLLM
 import dateparser
 import re
@@ -112,56 +181,80 @@ def extract_reminder(text):
 
     text_lower = text.lower()
 
-    # ✅ STEP 1: RULE-BASED TASK EXTRACTION
+    # -------------------------
+    # STEP 1: TASK EXTRACTION
+    # -------------------------
     task = ""
 
-    if "take" in text_lower:
-        task = text_lower.split("take")[-1].strip()
-
-    elif "remind me to" in text_lower:
+    if "remind me to" in text_lower:
         task = text_lower.split("remind me to")[-1].strip()
+
+    elif "take" in text_lower:
+        task = text_lower.split("take")[-1].strip()
 
     else:
         task = text_lower
 
-    # Clean task
-    task = re.sub(r"(after.*|at.*|tomorrow.*|today.*)", "", task).strip()
+    # Remove time words
+    task = re.sub(
+        r"(after.*|at.*|tomorrow.*|today.*)",
+        "",
+        task
+    ).strip()
 
-    # ❌ If still empty → fallback
+    # fallback
     if not task or len(task) < 2:
         task = "medicine"
 
-    # ✅ STEP 2: TIME EXTRACTION (SMART)
+    # -------------------------
+    # STEP 2: TIME EXTRACTION
+    # -------------------------
+    reminder_time = None
 
-    time = None
-
-    # 🔥 AFTER X MINUTES
+    # after X minutes
     match = re.search(r'after (\d+) (minute|minutes)', text_lower)
     if match:
         mins = int(match.group(1))
-        time = datetime.now() + timedelta(minutes=mins)
+        reminder_time = datetime.now() + timedelta(minutes=mins)
 
-    # 🔥 AFTER X HOURS
+    # after X hours
     match = re.search(r'after (\d+) (hour|hours)', text_lower)
     if match:
         hrs = int(match.group(1))
-        time = datetime.now() + timedelta(hours=hrs)
+        reminder_time = datetime.now() + timedelta(hours=hrs)
 
-    # 🔥 TOMORROW
-    if "tomorrow" in text_lower:
-        time = dateparser.parse("tomorrow 9:00 AM")
+    # tomorrow
+    elif "tomorrow" in text_lower:
+        reminder_time = dateparser.parse(
+            "tomorrow 9:00 AM"
+        )
 
-    # 🔥 SPECIFIC TIME
-    if not time:
+    # specific time
+    if not reminder_time:
         parsed = dateparser.parse(
             text,
-            settings={"PREFER_DATES_FROM": "future"}
+            settings={
+                "PREFER_DATES_FROM": "future"
+            }
         )
+
         if parsed:
-            time = parsed
+            reminder_time = parsed
 
-    # ❌ FINAL FALLBACK
-    if not time:
-        time = datetime.now() + timedelta(minutes=1)
+    # final fallback → 1 min later
+    if not reminder_time:
+        reminder_time = datetime.now() + timedelta(minutes=1)
 
-    return task, time
+    # -------------------------
+    # STEP 3: FORMAT FIX 🔥
+    # -------------------------
+    reminder_time = reminder_time.replace(microsecond=0)
+
+    # convert to SQLite-safe string
+    formatted_time = reminder_time.strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+
+    print("⏰ Final Reminder Time:", formatted_time)
+
+    return task, formatted_time
