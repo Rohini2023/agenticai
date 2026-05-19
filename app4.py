@@ -361,6 +361,12 @@ with center:
 
                 # ✅ SAFE SPEAK
                 try:
+
+                    result = run_agent(text)
+
+                    response = result["response"]
+
+                    
                     speak(response)
                 except Exception as e:
                     st.error(f"Voice Error: {e}")

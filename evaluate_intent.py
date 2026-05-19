@@ -1,5 +1,5 @@
 from agent.intent_classifier import detect_intent
-from test_cases import test_data
+from test_dataset import test_data
 
 correct = 0
 

@@ -1,0 +1,101 @@
+Input,Expected Intent,Predicted Intent,Expected Tool,Selected Tool,Correct Intent,Correct Tool,Response Time
+Remind me to take medicine after 2 minutes,reminder,reminder,reminder_tool,reminder_tool,True,True,0.007
+Please remind me to drink water,reminder,reminder,reminder_tool,reminder_tool,True,True,1.012
+Set reminder for lunch at 1 PM,reminder,reminder,reminder_tool,reminder_tool,True,True,0.016
+Wake me up tomorrow morning,reminder,reminder,reminder_tool,reminder_tool,True,True,0.025
+Remind me to call doctor,reminder,reminder,reminder_tool,reminder_tool,True,True,0.013
+Medicine reminder after 10 minutes,reminder,reminder,reminder_tool,reminder_tool,True,True,9.197
+Remind me to exercise tonight,reminder,reminder,reminder_tool,reminder_tool,True,True,0.015
+Please remember my tablet at 8 PM,reminder,reminder,reminder_tool,reminder_tool,True,True,1.462
+Alert me after one hour,reminder,reminder,reminder_tool,reminder_tool,True,True,0.013
+Remind me to take insulin,reminder,reminder,reminder_tool,reminder_tool,True,True,0.013
+Set reminder for hospital appointment,reminder,reminder,reminder_tool,reminder_tool,True,True,0.014
+Remind me to eat food,reminder,reminder,reminder_tool,reminder_tool,True,True,0.017
+Tell me to sleep at 10 PM,reminder,reminder,reminder_tool,reminder_tool,True,True,1.372
+Water reminder after 30 minutes,reminder,reminder,reminder_tool,reminder_tool,True,True,1.306
+Remind me tomorrow at 9 AM,reminder,reminder,reminder_tool,reminder_tool,True,True,0.008
+Please remind me to walk,reminder,reminder,reminder_tool,reminder_tool,True,True,0.013
+Set medicine alarm,reminder,reminder,reminder_tool,reminder_tool,True,True,1.124
+Remind me to check sugar,reminder,reminder,reminder_tool,reminder_tool,True,True,0.015
+Schedule my medicine reminder,reminder,reminder,reminder_tool,reminder_tool,True,True,1.189
+Remind me after two hours,reminder,reminder,reminder_tool,reminder_tool,True,True,0.013
+Please alert me for medicine,reminder,reminder,reminder_tool,reminder_tool,True,True,0.013
+I need reminder for tablets,reminder,reminder,reminder_tool,reminder_tool,True,True,1.227
+Remind me to pay electricity bill,reminder,reminder,reminder_tool,reminder_tool,True,True,0.014
+Set alarm for dinner,reminder,reminder,reminder_tool,reminder_tool,True,True,1.209
+Please notify me after 15 minutes,reminder,reminder,reminder_tool,reminder_tool,True,True,0.005
+Call ambulance immediately,emergency,emergency,emergency_tool,emergency_tool,True,True,4.122
+I fell down,emergency,emergency,emergency_tool,emergency_tool,True,True,3.369
+Help me please,emergency,emergency,emergency_tool,emergency_tool,True,True,3.449
+Emergency help needed,emergency,emergency,emergency_tool,emergency_tool,True,True,3.241
+I have chest pain,emergency,emergency,emergency_tool,emergency_tool,True,True,5.56
+Please call doctor,emergency,emergency,emergency_tool,emergency_tool,True,True,4.265
+I cannot breathe properly,emergency,emergency,emergency_tool,emergency_tool,True,True,4.743
+My head is spinning,emergency,chat,emergency_tool,chat_tool,False,False,14.632
+Call emergency service,emergency,emergency,emergency_tool,emergency_tool,True,True,3.17
+I need urgent help,emergency,emergency,emergency_tool,emergency_tool,True,True,7.97
+I fainted,emergency,emergency,emergency_tool,emergency_tool,True,True,4.379
+Send help quickly,emergency,emergency,emergency_tool,emergency_tool,True,True,4.296
+I feel severe pain,emergency,emergency,emergency_tool,emergency_tool,True,True,4.337
+I slipped and fell,emergency,chat,emergency_tool,chat_tool,False,False,9.45
+Please contact caregiver,emergency,chat,emergency_tool,chat_tool,False,False,42.613
+Emergency situation,emergency,emergency,emergency_tool,emergency_tool,True,True,3.172
+Call hospital now,emergency,emergency,emergency_tool,emergency_tool,True,True,7.414
+I need medical support,emergency,emergency,emergency_tool,emergency_tool,True,True,4.526
+I am unconscious,emergency,emergency,emergency_tool,emergency_tool,True,True,4.281
+Please save me,emergency,emergency,emergency_tool,emergency_tool,True,True,4.325
+I have difficulty breathing,emergency,emergency,emergency_tool,emergency_tool,True,True,4.438
+I need ambulance now,emergency,emergency,emergency_tool,emergency_tool,True,True,4.303
+Severe headache help,emergency,chat,emergency_tool,chat_tool,False,False,64.339
+Call my son immediately,emergency,emergency,emergency_tool,emergency_tool,True,True,7.425
+I feel very weak,emergency,chat,emergency_tool,chat_tool,False,False,32.526
+Tell me today's news,news,news,news_tool,news_tool,True,True,25.862
+Give me Malayalam news,news,news,news_tool,news_tool,True,True,96.178
+What are the latest headlines,news,news,news_tool,news_tool,True,True,18.29
+Tell sports news,news,news,news_tool,news_tool,True,True,25.01
+Give technology updates,news,chat,news_tool,chat_tool,False,False,76.513
+Any breaking news today,news,news,news_tool,news_tool,True,True,23.859
+Tell business news,news,news,news_tool,news_tool,True,True,19.484
+Read today's newspaper,news,news,news_tool,news_tool,True,True,21.236
+Latest Kerala news please,news,news,news_tool,news_tool,True,True,19.976
+What is happening today,news,chat,news_tool,chat_tool,False,False,26.504
+Give health news,news,news,news_tool,news_tool,True,True,24.213
+Tell current affairs,news,news,news_tool,news_tool,True,True,28.123
+News updates please,news,news,news_tool,news_tool,True,True,14.18
+Any important news today,news,news,news_tool,news_tool,True,True,22.491
+Read Malayalam headlines,news,news,news_tool,news_tool,True,True,97.282
+Tell cricket news,news,news,news_tool,news_tool,True,True,20.503
+Show political news,news,news,news_tool,news_tool,True,True,22.429
+Tell world news,news,news,news_tool,news_tool,True,True,16.27
+Give local Kerala news,news,news,news_tool,news_tool,True,True,14.448
+What's new today,news,chat,news_tool,chat_tool,False,False,32.696
+Read evening news,news,news,news_tool,news_tool,True,True,24.745
+Latest updates please,news,chat,news_tool,chat_tool,False,False,18.16
+Tell weather news,news,news,news_tool,news_tool,True,True,23.396
+Give top headlines,news,news,news_tool,news_tool,True,True,10.405
+News in Malayalam,news,news,news_tool,news_tool,True,True,105.262
+How are you,chat,chat,chat_tool,chat_tool,True,True,10.139
+What is your name,chat,chat,chat_tool,chat_tool,True,True,12.58
+Tell me a joke,chat,chat,chat_tool,chat_tool,True,True,10.167
+Sing a song,chat,chat,chat_tool,chat_tool,True,True,27.077
+Who created you,chat,chat,chat_tool,chat_tool,True,True,35.739
+What can you do,chat,chat,chat_tool,chat_tool,True,True,56.044
+Tell me something interesting,chat,chat,chat_tool,chat_tool,True,True,26.667
+Good morning,chat,chat,chat_tool,chat_tool,True,True,5.725
+Hello assistant,chat,chat,chat_tool,chat_tool,True,True,7.837
+Can we talk,chat,chat,chat_tool,chat_tool,True,True,11.048
+Tell me a story,chat,chat,chat_tool,chat_tool,True,True,67.65
+What is AI,chat,chat,chat_tool,chat_tool,True,True,76.282
+How is the weather,chat,chat,chat_tool,chat_tool,True,True,29.943
+Thank you,chat,chat,chat_tool,chat_tool,True,True,7.95
+Nice to meet you,chat,chat,chat_tool,chat_tool,True,True,9.999
+What time is it,chat,chat,chat_tool,chat_tool,True,True,24.114
+Tell me about Kerala,chat,chat,chat_tool,chat_tool,True,True,77.967
+Do you like music,chat,chat,chat_tool,chat_tool,True,True,23.055
+Can you help me,chat,emergency,chat_tool,emergency_tool,False,False,3.668
+Explain machine learning,chat,chat,chat_tool,chat_tool,True,True,85.541
+Who is the prime minister,chat,chat,chat_tool,chat_tool,True,True,21.935
+Tell motivational quote,chat,chat,chat_tool,chat_tool,True,True,11.24
+Say something funny,chat,chat,chat_tool,chat_tool,True,True,7.561
+What is your purpose,chat,chat,chat_tool,chat_tool,True,True,37.249
+Good night,chat,chat,chat_tool,chat_tool,True,True,5.518
